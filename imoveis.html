@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imóveis - Imobiliária Fachada</title>
+    
+    <!-- Pure CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEB7WnXyU6b0qH5LD1+Y9Hw1TqqqgktH/0qRgIh3Jm6Ntf6f" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cookie Notice -->
+    <div id="cookie-notice" class="cookie-notice">
+        <div class="container">
+            <p>Este site utiliza cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa política de cookies.</p>
+            <button id="accept-cookies" class="btn btn-primary btn-sm">Aceitar</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <i class="fas fa-building"></i> Imobiliária Fachada
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Início</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="imoveis.html">Imóveis</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="sobre.html">Sobre</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="configuracoes.html">Configurações</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-12">
+                    <h1>Nossos Imóveis</h1>
+                    <p>Descubra as melhores opções para compra, venda e aluguel</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="filter-container">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <select class="form-select" id="tipo-imovel">
+                                    <option value="">Tipo de Imóvel</option>
+                                    <option value="casa">Casa</option>
+                                    <option value="apartamento">Apartamento</option>
+                                    <option value="comercial">Comercial</option>
+                                    <option value="terreno">Terreno</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <select class="form-select" id="operacao">
+                                    <option value="">Operação</option>
+                                    <option value="venda">Venda</option>
+                                    <option value="aluguel">Aluguel</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <select class="form-select" id="bairro">
+                                    <option value="">Bairro</option>
+                                    <option value="centro">Centro</option>
+                                    <option value="jardim">Jardim</option>
+                                    <option value="vila">Vila</option>
+                                    <option value="bairro-novo">Bairro Novo</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" id="aplicar-filtros">
+                                    <i class="fas fa-search"></i> Aplicar Filtros
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Properties Grid -->
+    <section class="properties py-5">
+        <div class="container">
+            <div class="row" id="properties-grid">
+                <!-- Property cards will be dynamically generated -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Pagination -->
+    <section class="pagination-section py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="Navegação de páginas">
+                        <ul class="pagination justify-content-center" id="pagination">
+                            <!-- Pagination will be dynamically generated -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-12">
+                    <h2>Não encontrou o que procurava?</h2>
+                    <p>Entre em contato conosco e nossa equipe encontrará o imóvel perfeito para você</p>
+                    <a href="#" class="btn btn-primary btn-lg">Fale Conosco</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Avaliações Section -->
+    <section class="reviews py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-12">
+                    <h2 class="section-title">O que nossos clientes dizem</h2>
+                    <p class="section-subtitle">Avaliações reais de quem confiou em nossos serviços</p>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="reviews-container">
+                        <div id="reviews-carousel-imoveis" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner" id="reviews-carousel-inner-imoveis">
+                                <!-- As avaliações serão carregadas dinamicamente aqui -->
+                            </div>
+                            
+                            <button class="carousel-control-prev" type="button" data-bs-target="#reviews-carousel-imoveis" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#reviews-carousel-imoveis" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                        <i class="fas fa-star"></i> Avaliar Nossos Serviços
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal de Avaliação -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewModalLabel">
+                        <i class="fas fa-star"></i> Avaliar Nossos Serviços
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="reviewerName" class="form-label">Seu Nome *</label>
+                                <input type="text" class="form-control" id="reviewerName" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="reviewerEmail" class="form-label">Seu Email</label>
+                                <input type="email" class="form-control" id="reviewerEmail">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="serviceType" class="form-label">Tipo de Serviço *</label>
+                            <select class="form-select" id="serviceType" required>
+                                <option value="">Selecione o serviço</option>
+                                <option value="compra">Compra de Imóvel</option>
+                                <option value="venda">Venda de Imóvel</option>
+                                <option value="aluguel">Aluguel</option>
+                                <option value="consultoria">Consultoria</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Avaliação Geral *</label>
+                            <div class="rating-input">
+                                <div class="star-rating">
+                                    <input type="radio" id="star5-imoveis" name="rating" value="5" required>
+                                    <label for="star5-imoveis" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="star4-imoveis" name="rating" value="4">
+                                    <label for="star4-imoveis" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="star3-imoveis" name="rating" value="3">
+                                    <label for="star3-imoveis" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="star2-imoveis" name="rating" value="2">
+                                    <label for="star2-imoveis" class="star-label"><i class="fas fa-star"></i></label>
+                                    <input type="radio" id="star1-imoveis" name="rating" value="1">
+                                    <label for="star1-imoveis" class="star-label"><i class="fas fa-star"></i></label>
+                                </div>
+                                <small class="text-muted">Clique nas estrelas para avaliar</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="qualityRating" class="form-label">Qualidade do Serviço</label>
+                                <select class="form-select" id="qualityRating">
+                                    <option value="">Selecione</option>
+                                    <option value="5">Excelente</option>
+                                    <option value="4">Muito Bom</option>
+                                    <option value="3">Bom</option>
+                                    <option value="2">Regular</option>
+                                    <option value="1">Ruim</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="communicationRating" class="form-label">Comunicação</label>
+                                <select class="form-select" id="communicationRating">
+                                    <option value="">Selecione</option>
+                                    <option value="5">Excelente</option>
+                                    <option value="4">Muito Bom</option>
+                                    <option value="3">Bom</option>
+                                    <option value="2">Regular</option>
+                                    <option value="1">Ruim</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reviewComment" class="form-label">Comentário</label>
+                            <textarea class="form-control" id="reviewComment" rows="4" placeholder="Conte-nos sobre sua experiência com nossos serviços..."></textarea>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="anonymousReview">
+                            <label class="form-check-label" for="anonymousReview">
+                                Enviar avaliação de forma anônima
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="reviewForm" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Enviar Avaliação
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Imobiliária Fachada</h5>
+                    <p>Sua parceira de confiança no mercado imobiliário desde 2008.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h5>Links Rápidos</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Início</a></li>
+                        <li><a href="imoveis.html">Imóveis</a></li>
+                        <li><a href="sobre.html">Sobre</a></li>
+                        <li><a href="configuracoes.html">Configurações</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4">
+                    <h5>Contato</h5>
+                    <p><i class="fas fa-phone"></i> (11) 9999-9999</p>
+                    <p><i class="fas fa-envelope"></i> contato@imobiliariafachada.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Rua das Flores, 123 - Centro</p>
+                </div>
+            </div>
+            
+            <hr class="mt-4">
+            
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>&copy; 2024 Imobiliária Fachada. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>

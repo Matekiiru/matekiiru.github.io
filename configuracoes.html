@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Imobiliária Fachada</title>
+    
+    <!-- Pure CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEB7WnXyU6b0qH5LD1+Y9Hw1TqqqgktH/0qRgIh3Jm6Ntf6f" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Cookie Notice -->
+    <div id="cookie-notice" class="cookie-notice">
+        <div class="container">
+            <p>Este site utiliza cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa política de cookies.</p>
+            <button id="accept-cookies" class="btn btn-primary btn-sm">Aceitar</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <i class="fas fa-building"></i> Imobiliária Fachada
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Início</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="imoveis.html">Imóveis</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="sobre.html">Sobre</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="configuracoes.html">Configurações</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header py-5">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-12">
+                    <h1>Configurações do Site</h1>
+                    <p>Personalize sua experiência de navegação</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Settings Section -->
+    <section class="settings py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="settings-container">
+                        
+                        <!-- Color Palette Section -->
+                        <div class="setting-section mb-5">
+                            <h3><i class="fas fa-palette"></i> Paleta de Cores</h3>
+                            <p class="text-muted">Escolha uma das paletas de cores disponíveis ou crie uma personalizada</p>
+                            
+                            <div class="color-palettes">
+                                <!-- Default Palette -->
+                                <div class="palette-option" data-palette="default">
+                                    <div class="palette-preview">
+                                        <div class="color-swatch" style="background-color: #007bff;"></div>
+                                        <div class="color-swatch" style="background-color: #6c757d;"></div>
+                                        <div class="color-swatch" style="background-color: #28a745;"></div>
+                                        <div class="color-swatch" style="background-color: #ffc107;"></div>
+                                    </div>
+                                    <span>Padrão</span>
+                                </div>
+                                
+                                <!-- Ocean Palette -->
+                                <div class="palette-option" data-palette="ocean">
+                                    <div class="palette-preview">
+                                        <div class="color-swatch" style="background-color: #1e3a8a;"></div>
+                                        <div class="color-swatch" style="background-color: #0ea5e9;"></div>
+                                        <div class="color-swatch" style="background-color: #06b6d4;"></div>
+                                        <div class="color-swatch" style="background-color: #67e8f9;"></div>
+                                    </div>
+                                    <span>Oceano</span>
+                                </div>
+                                
+                                <!-- Forest Palette -->
+                                <div class="palette-option" data-palette="forest">
+                                    <div class="palette-preview">
+                                        <div class="color-swatch" style="background-color: #166534;"></div>
+                                        <div class="color-swatch" style="background-color: #16a34a;"></div>
+                                        <div class="color-swatch" style="background-color: #22c55e;"></div>
+                                        <div class="color-swatch" style="background-color: #4ade80;"></div>
+                                    </div>
+                                    <span>Floresta</span>
+                                </div>
+                                
+                                <!-- Sunset Palette -->
+                                <div class="palette-option" data-palette="sunset">
+                                    <div class="palette-preview">
+                                        <div class="color-swatch" style="background-color: #dc2626;"></div>
+                                        <div class="color-swatch" style="background-color: #ea580c;"></div>
+                                        <div class="color-swatch" style="background-color: #f59e0b;"></div>
+                                        <div class="color-swatch" style="background-color: #fbbf24;"></div>
+                                    </div>
+                                    <span>Pôr do Sol</span>
+                                </div>
+                                
+                                <!-- Purple Palette -->
+                                <div class="palette-option" data-palette="purple">
+                                    <div class="palette-preview">
+                                        <div class="color-swatch" style="background-color: #581c87;"></div>
+                                        <div class="color-swatch" style="background-color: #7c3aed;"></div>
+                                        <div class="color-swatch" style="background-color: #a855f7;"></div>
+                                        <div class="color-swatch" style="background-color: #c084fc;"></div>
+                                    </div>
+                                    <span>Roxo</span>
+                                </div>
+                                
+                                <!-- Gray Palette -->
+                                <div class="palette-option" data-palette="gray">
+                                    <div class="palette-preview">
+                                        <div class="color-swatch" style="background-color: #1f2937;"></div>
+                                        <div class="color-swatch" style="background-color: #4b5563;"></div>
+                                        <div class="color-swatch" style="background-color: #6b7280;"></div>
+                                        <div class="color-swatch" style="background-color: #9ca3af;"></div>
+                                    </div>
+                                    <span>Cinza</span>
+                                </div>
+                                
+                                <!-- Custom Palette -->
+                                <div class="palette-option" data-palette="custom">
+                                    <div class="palette-preview">
+                                        <div class="color-swatch" style="background-color: #000000;"></div>
+                                        <div class="color-swatch" style="background-color: #ffffff;"></div>
+                                        <div class="color-swatch" style="background-color: #cccccc;"></div>
+                                        <div class="color-swatch" style="background-color: #999999;"></div>
+                                    </div>
+                                    <span>Personalizado</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom Color Inputs -->
+                            <div class="custom-colors mt-3" id="custom-colors" style="display: none;">
+                                <h5>Definir Cores Personalizadas</h5>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label>Cor Primária</label>
+                                        <input type="color" class="form-control" id="custom-primary" value="#000000">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Cor Secundária</label>
+                                        <input type="color" class="form-control" id="custom-secondary" value="#ffffff">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Cor de Destaque</label>
+                                        <input type="color" class="form-control" id="custom-accent" value="#cccccc">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Cor de Fundo</label>
+                                        <input type="color" class="form-control" id="custom-background" value="#999999">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Font Size Section -->
+                        <div class="setting-section mb-5">
+                            <h3><i class="fas fa-text-height"></i> Tamanho das Fontes</h3>
+                            <p class="text-muted">Ajuste o tamanho das fontes para melhorar a legibilidade</p>
+                            
+                            <div class="font-size-options">
+                                <div class="font-option" data-size="small">
+                                    <span class="font-preview small">Aa</span>
+                                    <span>Pequeno</span>
+                                </div>
+                                
+                                <div class="font-option" data-size="medium">
+                                    <span class="font-preview medium">Aa</span>
+                                    <span>Médio</span>
+                                </div>
+                                
+                                <div class="font-option" data-size="large">
+                                    <span class="font-preview large">Aa</span>
+                                    <span>Grande</span>
+                                </div>
+                                
+                                <div class="font-option" data-size="extra-large">
+                                    <span class="font-preview extra-large">Aa</span>
+                                    <span>Extra Grande</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Layout Section -->
+                        <div class="setting-section mb-5">
+                            <h3><i class="fas fa-th-large"></i> Layout da Página</h3>
+                            <p class="text-muted">Escolha entre diferentes estilos de layout</p>
+                            
+                            <div class="layout-options">
+                                <div class="layout-option" data-layout="default">
+                                    <div class="layout-preview">
+                                        <div class="layout-box"></div>
+                                        <div class="layout-box"></div>
+                                        <div class="layout-box"></div>
+                                    </div>
+                                    <span>Padrão</span>
+                                </div>
+                                
+                                <div class="layout-option" data-layout="compact">
+                                    <div class="layout-preview compact">
+                                        <div class="layout-box"></div>
+                                        <div class="layout-box"></div>
+                                        <div class="layout-box"></div>
+                                    </div>
+                                    <span>Compacto</span>
+                                </div>
+                                
+                                <div class="layout-option" data-layout="spacious">
+                                    <div class="layout-preview spacious">
+                                        <div class="layout-box"></div>
+                                        <div class="layout-box"></div>
+                                        <div class="layout-box"></div>
+                                    </div>
+                                    <span>Espaçoso</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Reset Button -->
+                        <div class="text-center">
+                            <button class="btn btn-secondary" id="reset-settings">
+                                <i class="fas fa-undo"></i> Restaurar Padrões
+                            </button>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Preview Section -->
+    <section class="preview-section py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="text-center mb-4">Prévia das Configurações</h3>
+                    <div class="preview-container">
+                        <div class="preview-card">
+                            <h4>Exemplo de Título</h4>
+                            <p>Este é um exemplo de como o texto aparecerá com as configurações selecionadas. Você pode ver as mudanças em tempo real.</p>
+                            <button class="btn btn-primary">Botão de Exemplo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Imobiliária Fachada</h5>
+                    <p>Sua parceira de confiança no mercado imobiliário desde 2008.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <h5>Links Rápidos</h5>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Início</a></li>
+                        <li><a href="imoveis.html">Imóveis</a></li>
+                        <li><a href="sobre.html">Sobre</a></li>
+                        <li><a href="configuracoes.html">Configurações</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4">
+                    <h5>Contato</h5>
+                    <p><i class="fas fa-phone"></i> (11) 9999-9999</p>
+                    <p><i class="fas fa-envelope"></i> contato@imobiliariafachada.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Rua das Flores, 123 - Centro</p>
+                </div>
+            </div>
+            
+            <hr class="mt-4">
+            
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>&copy; 2024 Imobiliária Fachada. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>
