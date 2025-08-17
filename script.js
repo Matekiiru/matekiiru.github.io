@@ -569,20 +569,17 @@ window.applySiteSettings = () => {
 class ReviewSystem {
     constructor() {
         this.reviews = [];
-        this.pendingReviews = []; // Avaliações pendentes de moderação
         this.reviewResponses = {}; // Respostas da imobiliária
         this.filters = {
             serviceType: '',
             rating: '',
-            dateRange: '',
-            status: 'approved' // approved, pending, rejected
+            dateRange: ''
         };
         this.init();
     }
     
     init() {
         this.loadReviews();
-        this.loadPendingReviews();
         this.loadReviewResponses();
         this.setupEventListeners();
         this.renderReviews();
@@ -632,6 +629,18 @@ class ReviewSystem {
                 this.reviewResponses = {};
             }
         }
+        
+        // Adicionar resposta específica para avaliação ID 5
+        if (!this.reviewResponses[5]) {
+            this.reviewResponses[5] = {
+                id: Date.now(),
+                reviewId: 5,
+                text: "Bom dia. Não.",
+                date: new Date().toISOString(),
+                author: 'Imobiliária Fachada'
+            };
+            this.saveReviewResponses();
+        }
     }
     
     // Cria avaliações de exemplo para demonstração
@@ -639,13 +648,13 @@ class ReviewSystem {
         const sampleReviews = [
             {
                 id: 1,
-                name: 'Maria Silva',
-                email: 'maria@email.com',
+                name: 'Milo Castello',
+                email: 'milo@email.com',
                 serviceType: 'compra',
                 rating: 5,
                 qualityRating: 5,
                 communicationRating: 5,
-                comment: 'Excelente atendimento! A equipe foi muito profissional e me ajudou a encontrar exatamente o que procurava. Recomendo fortemente!',
+                comment: 'Muito bom! Sequestraram meu irmão.',
                 date: '2024-01-15',
                 anonymous: false,
                 status: 'approved',
@@ -654,13 +663,13 @@ class ReviewSystem {
             },
             {
                 id: 2,
-                name: 'João Santos',
-                email: 'joao@email.com',
+                name: 'Daniel Hartmann',
+                email: 'daniel@email.com',
                 serviceType: 'venda',
                 rating: 4,
                 qualityRating: 4,
                 communicationRating: 5,
-                comment: 'Vendi meu apartamento em tempo recorde e com um preço excelente. A comunicação foi sempre clara e transparente.',
+                comment: 'Tinha um cachorro estranho todo vermelho sangue na porta.',
                 date: '2024-01-10',
                 anonymous: false,
                 status: 'approved',
@@ -669,8 +678,8 @@ class ReviewSystem {
             },
             {
                 id: 3,
-                name: 'Ana Costa',
-                email: 'ana@email.com',
+                name: 'Elizabeth Webber',
+                email: 'elizabeth@email.com',
                 serviceType: 'aluguel',
                 rating: 5,
                 qualityRating: 5,
@@ -684,8 +693,8 @@ class ReviewSystem {
             },
             {
                 id: 4,
-                name: 'Pedro Oliveira',
-                email: 'pedro@email.com',
+                name: 'Arthur Cervero',
+                email: 'arthur@email.com',
                 serviceType: 'consultoria',
                 rating: 3,
                 qualityRating: 3,
@@ -699,13 +708,13 @@ class ReviewSystem {
             },
             {
                 id: 5,
-                name: 'Carla Mendes',
-                email: 'carla@email.com',
+                name: 'Amelie Florence',
+                email: 'amelie@email.com',
                 serviceType: 'compra',
                 rating: 5,
                 qualityRating: 5,
                 communicationRating: 5,
-                comment: 'Comprei minha casa dos sonhos através da Imobiliária Fachada! A equipe foi incrível, desde o primeiro contato até a assinatura do contrato.',
+                comment: 'Quero o número daquele loiro 🤤🤤',
                 date: '2024-01-25',
                 anonymous: false,
                 status: 'approved',
@@ -714,8 +723,8 @@ class ReviewSystem {
             },
             {
                 id: 6,
-                name: 'Roberto Silva',
-                email: 'roberto@email.com',
+                name: 'Cristopher Cohen',
+                email: 'cristopher@email.com',
                 serviceType: 'venda',
                 rating: 4,
                 qualityRating: 4,
@@ -729,13 +738,13 @@ class ReviewSystem {
             },
             {
                 id: 7,
-                name: 'Fernanda Costa',
-                email: 'fernanda@email.com',
+                name: 'Beatrice Portinari',
+                email: 'beatrice@email.com',
                 serviceType: 'aluguel',
                 rating: 5,
                 qualityRating: 5,
                 communicationRating: 4,
-                comment: 'Encontrei o apartamento perfeito para mim. A imobiliária facilitou todo o processo de aluguel.',
+                comment: 'Encontrei o apartamento perfeito para mim. A imobiliária facilitou todo o processo de aluguel e exorcisou o lugar.',
                 date: '2024-01-30',
                 anonymous: false,
                 status: 'approved',
@@ -744,13 +753,13 @@ class ReviewSystem {
             },
             {
                 id: 8,
-                name: 'Lucas Santos',
-                email: 'lucas@email.com',
+                name: 'Lucciano Carvalho',
+                email: 'luciano@email.com',
                 serviceType: 'consultoria',
                 rating: 4,
                 qualityRating: 4,
                 communicationRating: 4,
-                comment: 'Excelente consultoria para investimento imobiliário. A equipe tem muito conhecimento do mercado.',
+                comment: 'Excelente consultoria para investimento imobiliário. A equipe tem muito conhecimento do mercado. E de outras coisas aparentemente.',
                 date: '2024-02-01',
                 anonymous: false,
                 status: 'approved',
@@ -1245,28 +1254,27 @@ class ReviewSystem {
             comment: comment,
             date: new Date().toISOString().split('T')[0],
             anonymous: anonymous,
-            status: 'pending', // Nova avaliação fica pendente de moderação
+            status: 'approved', // Avaliação aprovada automaticamente
             helpful: 0,
             reported: false
         };
         
-        // Adicionar à lista de pendentes para moderação
-        this.pendingReviews.unshift(newReview);
-        this.savePendingReviews();
+        // Adicionar diretamente à lista de avaliações aprovadas
+        this.reviews.unshift(newReview);
+        this.saveReviews();
         
-        // Atualizar painel de moderação
-        this.setupModerationPanel();
+        // Atualizar interface
+        this.renderReviews();
+        this.renderStats();
         
         // Fechar modal e mostrar notificação
         const modalElement = document.getElementById('reviewModal');
         if (modalElement) {
             const modalInstance = bootstrap.Modal.getInstance(modalElement);
             if (modalInstance) modalInstance.hide();
-            // Remover o modal do DOM após fechar (se for criado dinamicamente)
-            // modalElement.remove(); // Só remova se você criar o modal via JS
         }
         
-        this.showNotification('Avaliação enviada com sucesso! Aguardando aprovação da nossa equipe.', 'success');
+        this.showNotification('Avaliação enviada com sucesso!', 'success');
         
         // Limpar formulário
         form.reset();
