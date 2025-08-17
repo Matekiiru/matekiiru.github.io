@@ -43,28 +43,38 @@ class SiteSettings {
         } catch (e) {
             console.error('Erro ao salvar configurações:', e);
         }
-    }
+    } 
+
+
+
+
+
+
     
-    // Aplica as configurações carregadas ao site
     applySettings() {
-        // Aplicar tema
         document.documentElement.setAttribute('data-theme', this.settings.theme);
-        
-        // Aplicar tamanho da fonte
         document.documentElement.setAttribute('data-font-size', this.settings.fontSize);
-        
-        // Aplicar layout
         document.documentElement.setAttribute('data-layout', this.settings.layout);
-        
-        // Aplicar cores personalizadas se for o tema custom
+
+        const root = document.documentElement;
         if (this.settings.theme === 'custom') {
             this.applyCustomColors();
+        } else {
+            // Limpa variáveis customizadas para evitar conflitos
+            root.style.removeProperty('--primary-color');
+            root.style.removeProperty('--secondary-color');
+            root.style.removeProperty('--accent-color');
+            root.style.removeProperty('--background-color');
+            root.style.removeProperty('--primary-color-rgb');
         }
-        
-        // Atualizar seleções visuais na página de configurações
+
         this.updateVisualSelections();
+        // Ocultar bloco de cores personalizadas se não for custom
+        const customColors = document.getElementById('custom-colors');
+        if (customColors) {
+            customColors.style.display = (this.settings.theme === 'custom') ? 'block' : 'none';
+        }
     }
-    
     // Aplica cores personalizadas
     applyCustomColors() {
         const root = document.documentElement;
@@ -72,6 +82,16 @@ class SiteSettings {
         root.style.setProperty('--secondary-color', this.settings.customColors.secondary);
         root.style.setProperty('--accent-color', this.settings.customColors.accent);
         root.style.setProperty('--background-color', this.settings.customColors.background);
+
+        // Adiciona a variável --primary-color-rgb para temas personalizados
+        const hex = this.settings.customColors.primary.replace('#', '');
+        let r = 0, g = 0, b = 0;
+        if (hex.length === 6) {
+            r = parseInt(hex.substring(0,2), 16);
+            g = parseInt(hex.substring(2,4), 16);
+            b = parseInt(hex.substring(4,6), 16);
+        }
+        root.style.setProperty('--primary-color-rgb', `${r},${g},${b}`);
     }
     
     // Atualiza as seleções visuais na página de configurações
@@ -495,6 +515,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar sistema de avaliações
     window.reviewSystem = new ReviewSystem();
     
+    // Inicializar sistema de imóveis
+    window.propertySystem = new PropertySystem();
+    
     // Adicionar estilos para notificações
     const style = document.createElement('style');
     style.textContent = `
@@ -672,6 +695,66 @@ class ReviewSystem {
                 anonymous: false,
                 status: 'approved',
                 helpful: 0,
+                reported: false
+            },
+            {
+                id: 5,
+                name: 'Carla Mendes',
+                email: 'carla@email.com',
+                serviceType: 'compra',
+                rating: 5,
+                qualityRating: 5,
+                communicationRating: 5,
+                comment: 'Comprei minha casa dos sonhos através da Imobiliária Fachada! A equipe foi incrível, desde o primeiro contato até a assinatura do contrato.',
+                date: '2024-01-25',
+                anonymous: false,
+                status: 'approved',
+                helpful: 4,
+                reported: false
+            },
+            {
+                id: 6,
+                name: 'Roberto Silva',
+                email: 'roberto@email.com',
+                serviceType: 'venda',
+                rating: 4,
+                qualityRating: 4,
+                communicationRating: 5,
+                comment: 'Vendi meu apartamento em um tempo recorde e com um preço acima do esperado. Recomendo a todos!',
+                date: '2024-01-28',
+                anonymous: false,
+                status: 'approved',
+                helpful: 2,
+                reported: false
+            },
+            {
+                id: 7,
+                name: 'Fernanda Costa',
+                email: 'fernanda@email.com',
+                serviceType: 'aluguel',
+                rating: 5,
+                qualityRating: 5,
+                communicationRating: 4,
+                comment: 'Encontrei o apartamento perfeito para mim. A imobiliária facilitou todo o processo de aluguel.',
+                date: '2024-01-30',
+                anonymous: false,
+                status: 'approved',
+                helpful: 1,
+                reported: false
+            },
+            {
+                id: 8,
+                name: 'Lucas Santos',
+                email: 'lucas@email.com',
+                serviceType: 'consultoria',
+                rating: 4,
+                qualityRating: 4,
+                communicationRating: 4,
+                comment: 'Excelente consultoria para investimento imobiliário. A equipe tem muito conhecimento do mercado.',
+                date: '2024-02-01',
+                anonymous: false,
+                status: 'approved',
+                helpful: 3,
                 reported: false
             }
         ];
@@ -1177,10 +1260,10 @@ class ReviewSystem {
         // Fechar modal e mostrar notificação
         const modalElement = document.getElementById('reviewModal');
         if (modalElement) {
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-                modal.hide();
-            }
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) modalInstance.hide();
+            // Remover o modal do DOM após fechar (se for criado dinamicamente)
+            // modalElement.remove(); // Só remova se você criar o modal via JS
         }
         
         this.showNotification('Avaliação enviada com sucesso! Aguardando aprovação da nossa equipe.', 'success');
@@ -1304,29 +1387,72 @@ class ReviewSystem {
         const ratingDistribution = this.calculateRatingDistribution(filteredReviews);
         const serviceTypeStats = this.calculateServiceTypeStats(filteredReviews);
         const trendAnalysis = this.calculateTrendAnalysis(filteredReviews);
+        const recentReviews = this.getRecentReviews(filteredReviews, 5);
         
         statsContainer.innerHTML = `
-            <div class="rating-summary">
-                <div class="average-rating">
-                    <div class="average-score">${averageRating.toFixed(1)}</div>
-                    <div class="star-rating-display">${this.generateStars(Math.round(averageRating))}</div>
-                    <small>${filteredReviews.length} avaliações</small>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="rating-summary">
+                        <div class="average-rating text-center">
+                            <div class="average-score">${averageRating.toFixed(1)}</div>
+                            <div class="star-rating-display">${this.generateStars(Math.round(averageRating))}</div>
+                            <small>${filteredReviews.length} avaliações</small>
+                        </div>
+                        
+                        <div class="rating-bars mt-3">
+                            ${this.generateRatingBars(ratingDistribution)}
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="rating-bars">
-                    ${this.generateRatingBars(ratingDistribution)}
-                </div>
-            </div>
-            
-            <div class="advanced-stats mt-4">
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="col-md-4">
+                    <div class="service-type-analysis">
                         <h6>Análise por Tipo de Serviço</h6>
                         ${this.generateServiceTypeStats(serviceTypeStats)}
                     </div>
-                    <div class="col-md-6">
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="trend-analysis">
                         <h6>Tendências Temporais</h6>
                         ${this.generateTrendAnalysis(trendAnalysis)}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recent-reviews mt-4">
+                <h6>Avaliações Recentes</h6>
+                <div class="row">
+                    ${recentReviews.map(review => this.renderRecentReviewCard(review)).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Obtém avaliações recentes
+    getRecentReviews(reviews, limit = 5) {
+        return reviews
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, limit);
+    }
+    
+    // Renderiza card de avaliação recente
+    renderRecentReviewCard(review) {
+        return `
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="recent-review-card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <strong>${review.name}</strong>
+                            <small class="text-muted">${this.getServiceTypeLabel(review.serviceType)}</small>
+                        </div>
+                        <div class="review-rating">
+                            ${this.generateStars(review.rating)}
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        <p class="review-text">"${review.comment.substring(0, 100)}${review.comment.length > 100 ? '...' : ''}"</p>
+                        <small class="text-muted">${this.formatDate(review.date)}</small>
                     </div>
                 </div>
             </div>
@@ -1478,7 +1604,7 @@ class ReviewSystem {
         return html;
     }
     
-    // Gera estrelas HTML
+    // HTML
     generateStars(rating) {
         let stars = '';
         for (let i = 1; i <= 5; i++) {
@@ -1539,6 +1665,816 @@ class ReviewSystem {
         if (existingNotification) {
             existingNotification.remove();
         }
+        
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+}
+
+// Sistema de Gerenciamento de Imóveis
+class PropertySystem {
+    constructor() {
+        this.properties = [];
+        this.filters = {
+            tipo: '',
+            operacao: '',
+            bairro: '',
+            precoMin: '',
+            precoMax: '',
+            quartos: '',
+            banheiros: ''
+        };
+        this.currentPage = 1;
+        this.itemsPerPage = 12;
+        this.init();
+    }
+    
+    init() {
+        this.loadProperties();
+        this.setupEventListeners();
+        this.renderProperties();
+        this.setupPagination();
+        this.renderFeaturedProperties();
+    }
+    
+    // Carrega imóveis do localStorage
+    loadProperties() {
+        const savedProperties = localStorage.getItem('siteProperties');
+        if (savedProperties) {
+            try {
+                this.properties = JSON.parse(savedProperties);
+            } catch (e) {
+                console.warn('Erro ao carregar imóveis:', e);
+                this.properties = [];
+            }
+        }
+        
+        // Se não houver imóveis, criar alguns de exemplo
+        if (this.properties.length === 0) {
+            this.createSampleProperties();
+        }
+    }
+    
+    // Cria imóveis de exemplo
+    createSampleProperties() {
+        const sampleProperties = [
+            {
+                id: 1,
+                titulo: 'Casa Moderna no Jardim',
+                tipo: 'casa',
+                operacao: 'venda',
+                preco: 850000,
+                endereco: 'Rua das Flores, 123',
+                bairro: 'jardim',
+                quartos: 4,
+                banheiros: 3,
+                area: 280,
+                descricao: 'Linda casa moderna com acabamento de luxo, ampla sala de estar, cozinha gourmet e quintal espaçoso.',
+                caracteristicas: ['Garagem para 2 carros', 'Piscina', 'Churrasqueira', 'Jardim', 'Sala de jantar'],
+                imagens: ['./Images/casa_1.png'],
+                destaque: true,
+                dataCadastro: '2024-01-15',
+                status: 'disponivel'
+            },
+            {
+                id: 2,
+                titulo: 'Apartamento no Centro',
+                tipo: 'apartamento',
+                operacao: 'aluguel',
+                preco: 2500,
+                endereco: 'Av. Principal, 456',
+                bairro: 'centro',
+                quartos: 2,
+                banheiros: 1,
+                area: 65,
+                descricao: 'Apartamento bem localizado no centro da cidade, próximo a comércio e transporte público.',
+                caracteristicas: ['Portaria 24h', 'Elevador', 'Área de lazer', 'Vagas de estacionamento'],
+                imagens: ['Images/b0e55b404173666e6c8ea5222eba852c.png'],
+                destaque: false,
+                dataCadastro: '2024-01-10',
+                status: 'disponivel'
+            },
+            {
+                id: 3,
+                titulo: 'Casa em Condomínio Fechado',
+                tipo: 'casa',
+                operacao: 'venda',
+                preco: 1200000,
+                endereco: 'Rua dos Ipês, 789',
+                bairro: 'bairro-novo',
+                quartos: 5,
+                banheiros: 4,
+                area: 350,
+                descricao: 'Casa em condomínio fechado com segurança 24h, ampla área de lazer e muito conforto.',
+                caracteristicas: ['Condomínio fechado', 'Segurança 24h', 'Piscina', 'Quadra de tênis', 'Playground'],
+                imagens: ['Images/casa-de-condominio-com-3-quartos-a-venda-212m-no-jardins-versalhes-aparecida-de-goiania.png'],
+                destaque: true,
+                dataCadastro: '2024-01-05',
+                status: 'disponivel'
+            },
+            {
+                id: 4,
+                titulo: 'Loft Industrial',
+                tipo: 'comercial',
+                operacao: 'aluguel',
+                preco: 3500,
+                endereco: 'Rua Comercial, 321',
+                bairro: 'centro',
+                quartos: 1,
+                banheiros: 1,
+                area: 120,
+                descricao: 'Loft industrial com design moderno, ideal para escritório ou moradia.',
+                caracteristicas: ['Design industrial', 'Alto pé direito', 'Cozinha integrada', 'Área de trabalho'],
+                imagens: ['Images/casa-de-condominio-com-3-quartos-a-venda-270m-no-vila-nova-joinville.png'],
+                destaque: false,
+                dataCadastro: '2024-01-20',
+                status: 'disponivel'
+            },
+            {
+                id: 5,
+                titulo: 'Terreno Residencial',
+                tipo: 'terreno',
+                operacao: 'venda',
+                preco: 450000,
+                endereco: 'Rua das Palmeiras, 654',
+                bairro: 'vila',
+                quartos: 0,
+                banheiros: 0,
+                area: 500,
+                descricao: 'Terreno plano e regular, ideal para construção de casa própria.',
+                caracteristicas: ['Terreno plano', 'Documentação em dia', 'Água e luz na rua', 'Fácil acesso'],
+                imagens: ['Images/Terreno-em-condominio-fechado-ou-bairro-aberto.jpg'],
+                destaque: false,
+                dataCadastro: '2024-01-12',
+                status: 'disponivel'
+            },
+            {
+                id: 6,
+                titulo: 'Cobertura Duplex',
+                tipo: 'apartamento',
+                operacao: 'venda',
+                preco: 1800000,
+                endereco: 'Av. Beira Mar, 987',
+                bairro: 'jardim',
+                quartos: 3,
+                banheiros: 3,
+                area: 200,
+                descricao: 'Cobertura duplex com vista para o mar, acabamento de luxo e ampla varanda.',
+                caracteristicas: ['Vista para o mar', 'Varanda ampla', 'Acabamento de luxo', 'Elevador privativo'],
+                imagens: ['Images/size_800_como-tirar-fotos-dos-imoveis-de-temporada-para-anuncia-los-na-internet-84c8d51e.png'],
+                destaque: true,
+                dataCadastro: '2024-01-08',
+                status: 'disponivel'
+            },
+            {
+                id: 7,
+                titulo: 'Studio Mobiliado',
+                tipo: 'apartamento',
+                operacao: 'aluguel',
+                preco: 1800,
+                endereco: 'Rua das Acácias, 234',
+                bairro: 'centro',
+                quartos: 1,
+                banheiros: 1,
+                area: 45,
+                descricao: 'Studio mobiliado e decorado, ideal para estudantes ou profissionais que buscam praticidade.',
+                caracteristicas: ['Mobiliado', 'Cozinha americana', 'Área de trabalho', 'Wi-Fi incluído'],
+                imagens: ['Images/UgZnGk7yMNh-iXDujQj1F35aWLyq_sWzJutjDjZB6TDY7-q85SxtiDHe2Vlk1lPh5zs8uggsU2xi23Mm2EP22okVs8IuSr8vFRR3PE9rgzLowNgw1024-h768.png'],
+                destaque: false,
+                dataCadastro: '2024-01-18',
+                status: 'disponivel'
+            },
+            {
+                id: 8,
+                titulo: 'Casa Colonial Reformada',
+                tipo: 'casa',
+                operacao: 'venda',
+                preco: 950000,
+                endereco: 'Rua Histórica, 567',
+                bairro: 'vila',
+                quartos: 3,
+                banheiros: 2,
+                area: 180,
+                descricao: 'Casa colonial totalmente reformada, mantendo o charme original com modernidade.',
+                caracteristicas: ['Reformada', 'Jardim histórico', 'Lareira', 'Garagem'],
+                imagens: ['Images/casa_1.png'],
+                destaque: false,
+                dataCadastro: '2024-01-14',
+                status: 'disponivel'
+            },
+            {
+                id: 9,
+                titulo: 'Sala Comercial',
+                tipo: 'comercial',
+                operacao: 'aluguel',
+                preco: 4200,
+                endereco: 'Av. Comercial, 789',
+                bairro: 'centro',
+                quartos: 0,
+                banheiros: 1,
+                area: 80,
+                descricao: 'Sala comercial em localização privilegiada, ideal para escritórios ou pequenos negócios.',
+                caracteristicas: ['Localização privilegiada', 'Recepção', 'Banheiro', 'Ar condicionado'],
+                imagens: ['Images/b0e55b404173666e6c8ea5222eba852c.png'],
+                destaque: false,
+                dataCadastro: '2024-01-16',
+                status: 'disponivel'
+            },
+            {
+                id: 10,
+                titulo: 'Terreno Comercial',
+                tipo: 'terreno',
+                operacao: 'venda',
+                preco: 800000,
+                endereco: 'Av. Industrial, 321',
+                bairro: 'bairro-novo',
+                quartos: 0,
+                banheiros: 0,
+                area: 800,
+                descricao: 'Terreno comercial com excelente localização para construção de galpão ou prédio comercial.',
+                caracteristicas: ['Zona comercial', 'Acesso fácil', 'Documentação em dia', 'Água e luz'],
+                imagens: ['Images/casa-de-condominio-com-3-quartos-a-venda-212m-no-jardins-versalhes-aparecida-de-goiania.png'],
+                destaque: false,
+                dataCadastro: '2024-01-22',
+                status: 'disponivel'
+            }
+        ];
+        
+        this.properties = sampleProperties;
+        this.saveProperties();
+    }
+    
+    // Salva imóveis no localStorage
+    saveProperties() {
+        try {
+            localStorage.setItem('siteProperties', JSON.stringify(this.properties));
+        } catch (e) {
+            console.error('Erro ao salvar imóveis:', e);
+        }
+    }
+    
+    // Configura event listeners
+    setupEventListeners() {
+        // Filtros
+        const filterElements = {
+            tipo: document.getElementById('tipo-imovel'),
+            operacao: document.getElementById('operacao'),
+            bairro: document.getElementById('bairro'),
+            aplicarFiltros: document.getElementById('aplicar-filtros')
+        };
+        
+        Object.values(filterElements).forEach(element => {
+            if (element) {
+                element.addEventListener('change', () => this.applyFilters());
+            }
+        });
+        
+        if (filterElements.aplicarFiltros) {
+            filterElements.aplicarFiltros.addEventListener('click', () => this.applyFilters());
+        }
+    }
+    
+    // Aplica filtros
+    applyFilters() {
+        this.filters.tipo = document.getElementById('tipo-imovel')?.value || '';
+        this.filters.operacao = document.getElementById('operacao')?.value || '';
+        this.filters.bairro = document.getElementById('bairro')?.value || '';
+        
+        this.currentPage = 1;
+        this.renderProperties();
+        this.setupPagination();
+    }
+    
+    // Filtra imóveis baseado nos critérios
+    getFilteredProperties() {
+        let filtered = [...this.properties];
+        
+        if (this.filters.tipo) {
+            filtered = filtered.filter(property => property.tipo === this.filters.tipo);
+        }
+        
+        if (this.filters.operacao) {
+            filtered = filtered.filter(property => property.operacao === this.filters.operacao);
+        }
+        
+        if (this.filters.bairro) {
+            filtered = filtered.filter(property => property.bairro === this.filters.bairro);
+        }
+        
+        return filtered;
+    }
+    
+    // Renderiza imóveis
+    renderProperties() {
+        const propertiesGrid = document.getElementById('properties-grid');
+        if (!propertiesGrid) return;
+        
+        const filteredProperties = this.getFilteredProperties();
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        const propertiesToShow = filteredProperties.slice(startIndex, endIndex);
+        
+        if (propertiesToShow.length === 0) {
+            propertiesGrid.innerHTML = `
+                <div class="col-12 text-center">
+                    <div class="no-properties">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4>Nenhum imóvel encontrado</h4>
+                        <p>Tente ajustar os filtros ou entre em contato conosco.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        propertiesGrid.innerHTML = propertiesToShow.map(property => this.renderPropertyCard(property)).join('');
+    }
+    
+    // Renderiza imóveis em destaque na página inicial
+    renderFeaturedProperties() {
+        const featuredGrid = document.getElementById('featured-properties-grid');
+        if (!featuredGrid) return;
+        
+        const featuredProperties = this.properties.filter(property => property.destaque).slice(0, 3);
+        
+        if (featuredProperties.length === 0) {
+            featuredGrid.innerHTML = `
+                <div class="col-12 text-center">
+                    <p class="text-muted">Nenhum imóvel em destaque no momento.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        featuredGrid.innerHTML = featuredProperties.map(property => this.renderFeaturedPropertyCard(property)).join('');
+    }
+    
+    // Renderiza card de imóvel em destaque
+    renderFeaturedPropertyCard(property) {
+        const precoFormatado = this.formatPrice(property.preco, property.operacao);
+        const operacaoLabel = property.operacao === 'venda' ? 'Venda' : 'Aluguel';
+        const tipoLabel = this.getTipoLabel(property.tipo);
+
+        const imgSrc = property.imagens && property.imagens[0]
+            ? property.imagens[0]
+            : 'https://via.placeholder.com/400x300/007bff/ffffff?text=' + encodeURIComponent(property.titulo);
+
+        return `
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="property-card card h-100 featured-card">
+                    <div class="destaque-badge">Destaque</div>
+                    <div class="property-image">
+                        <img src="${imgSrc}" class="card-img-top" alt="${property.titulo}">
+                        <div class="property-overlay">
+                            <div class="property-actions">
+                                <button class="btn btn-light btn-sm" onclick="window.propertySystem.viewProperty(${property.id})">
+                                    <i class="fas fa-eye"></i> Ver Detalhes
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="window.propertySystem.contactProperty(${property.id})">
+                                    <i class="fas fa-phone"></i> Contatar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="property-header">
+                            <h5 class="card-title">${property.titulo}</h5>
+                            <div class="property-price">${precoFormatado}</div>
+                        </div>
+                        <div class="property-location">
+                            <i class="fas fa-map-marker-alt"></i> ${property.endereco}
+                        </div>
+                        <div class="property-details">
+                            <span class="badge bg-primary">${tipoLabel}</span>
+                            <span class="badge bg-secondary">${operacaoLabel}</span>
+                            ${property.quartos > 0 ? `<span class="badge bg-info"><i class="fas fa-bed"></i> ${property.quartos}</span>` : ''}
+                            ${property.banheiros > 0 ? `<span class="badge bg-info"><i class="fas fa-bath"></i> ${property.banheiros}</span>` : ''}
+                            <span class="badge bg-success">${property.area}m²</span>
+                        </div>
+                        <p class="card-text">${property.descricao.substring(0, 120)}${property.descricao.length > 120 ? '...' : ''}</p>
+                        <div class="property-features">
+                            ${property.caracteristicas.slice(0, 2).map(carac => `<small class="text-muted"><i class="fas fa-check"></i> ${carac}</small>`).join('')}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Cadastrado em ${this.formatDate(property.dataCadastro)}</small>
+                            <div class="property-actions-footer">
+                                <button class="btn btn-outline-primary btn-sm" onclick="window.propertySystem.viewProperty(${property.id})">
+                                    Ver Detalhes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Renderiza card de imóvel
+    renderPropertyCard(property) {
+        const precoFormatado = this.formatPrice(property.preco, property.operacao);
+        const operacaoLabel = property.operacao === 'venda' ? 'Venda' : 'Aluguel';
+        const tipoLabel = this.getTipoLabel(property.tipo);
+
+        // Usa a primeira imagem do array, se existir
+        const imgSrc = property.imagens && property.imagens[0]
+            ? property.imagens[0]
+            : 'https://via.placeholder.com/400x300/007bff/ffffff?text=' + encodeURIComponent(property.titulo);
+
+        return `
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="property-card card h-100">
+                    ${property.destaque ? '<div class="destaque-badge">Destaque</div>' : ''}
+                    <div class="property-image">
+                        <img src="${imgSrc}" class="card-img-top" alt="${property.titulo}">
+                        <div class="property-overlay">
+                            <div class="property-actions">
+                                <button class="btn btn-light btn-sm" onclick="window.propertySystem.viewProperty(${property.id})">
+                                    <i class="fas fa-eye"></i> Ver Detalhes
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="window.propertySystem.contactProperty(${property.id})">
+                                    <i class="fas fa-phone"></i> Contatar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="property-header">
+                            <h5 class="card-title">${property.titulo}</h5>
+                            <div class="property-price">${precoFormatado}</div>
+                        </div>
+                        
+                        <div class="property-location">
+                            <i class="fas fa-map-marker-alt"></i> ${property.endereco}
+                        </div>
+                        
+                        <div class="property-details">
+                            <span class="badge bg-primary">${tipoLabel}</span>
+                            <span class="badge bg-secondary">${operacaoLabel}</span>
+                            ${property.quartos > 0 ? `<span class="badge bg-info"><i class="fas fa-bed"></i> ${property.quartos}</span>` : ''}
+                            ${property.banheiros > 0 ? `<span class="badge bg-info"><i class="fas fa-bath"></i> ${property.banheiros}</span>` : ''}
+                            <span class="badge bg-success">${property.area}m²</span>
+                        </div>
+                        
+                        <p class="card-text">${property.descricao.substring(0, 100)}${property.descricao.length > 100 ? '...' : ''}</p>
+                        
+                        <div class="property-features">
+                            ${property.caracteristicas.slice(0, 3).map(carac => `<small class="text-muted"><i class="fas fa-check"></i> ${carac}</small>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">Cadastrado em ${this.formatDate(property.dataCadastro)}</small>
+                            <div class="property-actions-footer">
+                                <button class="btn btn-outline-primary btn-sm" onclick="window.propertySystem.viewProperty(${property.id})">
+                                    Ver Detalhes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Configura paginação
+    setupPagination() {
+        const pagination = document.getElementById('pagination');
+        if (!pagination) return;
+        
+        const filteredProperties = this.getFilteredProperties();
+        const totalPages = Math.ceil(filteredProperties.length / this.itemsPerPage);
+        
+        if (totalPages <= 1) {
+            pagination.innerHTML = '';
+            return;
+        }
+        
+        let paginationHTML = '';
+        
+        // Botão anterior
+        paginationHTML += `
+            <li class="page-item ${this.currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="window.propertySystem.changePage(${this.currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+        `;
+        
+        // Páginas
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
+                paginationHTML += `
+                    <li class="page-item ${i === this.currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="window.propertySystem.changePage(${i})">${i}</a>
+                    </li>
+                `;
+            } else if (i === this.currentPage - 3 || i === this.currentPage + 3) {
+                paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+        }
+        
+        // Botão próximo
+        paginationHTML += `
+            <li class="page-item ${this.currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="window.propertySystem.changePage(${this.currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        `;
+        
+        pagination.innerHTML = paginationHTML;
+    }
+    
+    // Muda página
+    changePage(page) {
+        const filteredProperties = this.getFilteredProperties();
+        const totalPages = Math.ceil(filteredProperties.length / this.itemsPerPage);
+        
+        if (page >= 1 && page <= totalPages) {
+            this.currentPage = page;
+            this.renderProperties();
+            this.setupPagination();
+            
+            // Scroll para o topo da seção
+            const propertiesSection = document.querySelector('.properties');
+            if (propertiesSection) {
+                propertiesSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }
+    
+    // Visualiza detalhes do imóvel
+    viewProperty(propertyId) {
+        const property = this.properties.find(p => p.id === propertyId);
+        if (!property) return;
+        
+        this.showPropertyModal(property);
+    }
+    
+    // Mostra modal de detalhes do imóvel
+    showPropertyModal(property) {
+        const imgSrc = property.imagens && property.imagens[0]
+            ? property.imagens[0]
+            : 'https://via.placeholder.com/400x300/007bff/ffffff?text=' + encodeURIComponent(property.titulo);
+
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'propertyModal';
+        modal.innerHTML = `
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${property.titulo}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="property-gallery">
+                                    <img src="${imgSrc}" class="card-img-top" alt="${property.titulo}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="property-info">
+                                    <h4 class="property-price">${this.formatPrice(property.preco, property.operacao)}</h4>
+                                    <p class="property-location"><i class="fas fa-map-marker-alt"></i> ${property.endereco}</p>
+                                    
+                                    <div class="property-specs">
+                                        <div class="spec-item">
+                                            <i class="fas fa-home"></i>
+                                            <span>${this.getTipoLabel(property.tipo)}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <i class="fas fa-tag"></i>
+                                            <span>${property.operacao === 'venda' ? 'Venda' : 'Aluguel'}</span>
+                                        </div>
+                                        ${property.quartos > 0 ? `
+                                            <div class="spec-item">
+                                                <i class="fas fa-bed"></i>
+                                                <span>${property.quartos} quartos</span>
+                                            </div>
+                                        ` : ''}
+                                        ${property.banheiros > 0 ? `
+                                            <div class="spec-item">
+                                                <i class="fas fa-bath"></i>
+                                                <span>${property.banheiros} banheiros</span>
+                                            </div>
+                                        ` : ''}
+                                        <div class="spec-item">
+                                            <i class="fas fa-ruler-combined"></i>
+                                            <span>${property.area}m²</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="property-description">
+                                        <h6>Descrição</h6>
+                                        <p>${property.descricao}</p>
+                                    </div>
+                                    
+                                    <div class="property-features">
+                                        <h6>Características</h6>
+                                        <ul>
+                                            ${property.caracteristicas.map(carac => `<li><i class="fas fa-check"></i> ${carac}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-primary" onclick="window.propertySystem.contactProperty(${property.id})">
+                            <i class="fas fa-phone"></i> Entrar em Contato
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+
+        // Exibir o modal usando Bootstrap
+        const modalInstance = new bootstrap.Modal(modal);
+        modalInstance.show();
+
+        // Remover o modal do DOM após fechar
+        modal.addEventListener('hidden.bs.modal', () => {
+            modal.remove();
+        });
+    }
+    
+    // Contata sobre imóvel
+    contactProperty(propertyId) {
+        const property = this.properties.find(p => p.id === propertyId);
+        if (!property) return;
+        
+        this.showContactModal(property);
+    }
+    
+    // Mostra modal de contato
+    showContactModal(property) {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'contactModal';
+        modal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Contatar sobre: ${property.titulo}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="contactForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactName" class="form-label">Nome *</label>
+                                    <input type="text" class="form-control" id="contactName" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactEmail" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="contactEmail" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactPhone" class="form-label">Telefone</label>
+                                    <input type="tel" class="form-control" id="contactPhone">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactType" class="form-label">Tipo de Interesse</label>
+                                    <select class="form-select" id="contactType">
+                                        <option value="visita">Agendar Visita</option>
+                                        <option value="informacoes">Mais Informações</option>
+                                        <option value="negociacao">Negociação</option>
+                                        <option value="outro">Outro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="contactMessage" class="form-label">Mensagem</label>
+                                <textarea class="form-control" id="contactMessage" rows="4" 
+                                          placeholder="Conte-nos sobre seu interesse neste imóvel..."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" form="contactForm" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Event listener para o formulário
+        const contactForm = modal.querySelector('#contactForm');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.submitContact(property);
+        });
+        
+        const modalInstance = new bootstrap.Modal(modal);
+        modalInstance.show();
+        
+        modal.addEventListener('hidden.bs.modal', () => {
+            modal.remove();
+        });
+    }
+    
+    // Submete formulário de contato
+    submitContact(property) {
+        const name = document.getElementById('contactName')?.value || '';
+        const email = document.getElementById('contactEmail')?.value || '';
+        const phone = document.getElementById('contactPhone')?.value || '';
+        const type = document.getElementById('contactType')?.value || '';
+        const message = document.getElementById('contactMessage')?.value || '';
+        
+        if (!name || !email) {
+            this.showNotification('Por favor, preencha os campos obrigatórios.', 'warning');
+            return;
+        }
+        
+        // Aqui você pode implementar o envio real do formulário
+        // Por enquanto, apenas mostra uma notificação
+        this.showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+        
+        // Fechar modal
+        const modalElement = document.getElementById('contactModal');
+        if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        }
+    }
+    
+    // Formata preço
+    formatPrice(price, operation) {
+        if (operation === 'aluguel') {
+            return `R$ ${price.toLocaleString('pt-BR')}/mês`;
+        } else {
+            return `R$ ${price.toLocaleString('pt-BR')}`;
+        }
+    }
+    
+    // Obtém label do tipo
+    getTipoLabel(tipo) {
+        const labels = {
+            'casa': 'Casa',
+            'apartamento': 'Apartamento',
+            'comercial': 'Comercial',
+            'terreno': 'Terreno'
+        };
+        return labels[tipo] || tipo;
+    }
+    
+    // Formata data
+    formatDate(dateString) {
+        if (!dateString) return '';
+        
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return dateString;
+            
+            return date.toLocaleDateString('pt-BR');
+        } catch (error) {
+            console.warn('Erro ao formatar data:', error);
+            return dateString;
+        }
+    }
+    
+    // Mostra notificação
+    showNotification(message, type = 'info') {
+        if (!message) return;
         
         const notification = document.createElement('div');
         notification.className = `alert alert-${type} alert-dismissible fade show`;
