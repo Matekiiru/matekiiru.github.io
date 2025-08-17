@@ -141,17 +141,8 @@ O site é totalmente responsivo e funciona perfeitamente em:
 - Opção de avaliações anônimas
 - Dados salvos localmente no navegador
 
-## 📈 Melhorias Futuras
-
-- Sistema de busca por texto
-- Filtros por preço
-- Galeria de imagens dos imóveis
-- Sistema de favoritos
-- Chat online
-- Integração com mapas
-- Sistema de agendamento de visitas
-
 ---
 
 **Desenvolvido com ❤️ para demonstrar as capacidades de um site moderno de imobiliária.**
+
 
